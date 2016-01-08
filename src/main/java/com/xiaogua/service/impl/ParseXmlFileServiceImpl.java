@@ -192,4 +192,58 @@ public class ParseXmlFileServiceImpl implements InterfaceParseXmlFileService {
 			MySqlManagerDao.insertDataToDb(sqlBuffer.toString());
 		}
 	}
+
+	public void parseXmlFileToDbWithStax2(String filePath, String encoding) throws Exception {
+		long start = System.currentTimeMillis();
+		StringBuffer sqlBuffer = new StringBuffer(5120);
+		sqlBuffer.append(sql);
+		long countNum = 0;
+		String qName = null;
+		boolean isStart = false;
+		StartElement startElement = null;
+		EndElement endElement = null;
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		XMLEventReader eventReader = factory.createXMLEventReader(GenerateRandDataDao.read(filePath, encoding));
+		while (eventReader.hasNext()) {
+			XMLEvent event = eventReader.nextEvent();
+			if (event.isStartElement()) {
+				startElement = event.asStartElement();
+				qName = startElement.getName().getLocalPart();
+				if ("personinfo".equals(qName)) {
+					sqlBuffer.append("(");
+					isStart = true;
+				}
+				if (isStart && event.isStartElement()) {
+					qName = event.asStartElement().getName().getLocalPart();
+					if ("id".equals(qName)) {
+						event = eventReader.nextEvent();
+						sqlBuffer.append(event.asCharacters().getData()).append(",");
+					} else if (!"personinfo".equals(qName) && !"hobby".equals(qName)) {
+						event = eventReader.nextEvent();
+						sqlBuffer.append("'").append(event.asCharacters().getData()).append("',");
+					} else if ("hobby".equals(qName)) {
+						event = eventReader.nextEvent();
+						event = eventReader.nextEvent();
+						sqlBuffer.append("'").append(
+								event.asCharacters().getData().trim().replace("\\\"", "\"").replace("'", "\\\'"))
+								.append("'");
+					}
+				}
+			}
+			if (event.isEndElement()) {
+				endElement = event.asEndElement();
+				qName = endElement.getName().getLocalPart();
+				if ("personinfo".equals(qName)) {
+					countNum++;
+					sqlBuffer.append("),");
+					saveXmlDataToDb(sqlBuffer, countNum);
+					isStart = false;
+				}
+			}
+		}
+		processRemainXmlData(sqlBuffer);
+		sqlBuffer.setLength(0);
+		log.info("method {},parse json file {},total num={}, cost time={}", "parseXmlFileToDbWithStax", countNum,
+				filePath, (System.currentTimeMillis() - start));
+	}
 }

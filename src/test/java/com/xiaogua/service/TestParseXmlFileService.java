@@ -46,4 +46,10 @@ public class TestParseXmlFileService {
 		//203191
 		parseXmlFileService.parseXmlFileToDbWithStaxMate(xmlPath, encoding);
 	}
+	
+	@Test
+	public void testParseXmlFileToDbWithStax2() throws Exception {
+		//183156
+		parseXmlFileService.parseXmlFileToDbWithStax2(xmlPath, encoding);
+	}
 }

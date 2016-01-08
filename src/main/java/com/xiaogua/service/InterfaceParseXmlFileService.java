@@ -35,4 +35,6 @@ public interface InterfaceParseXmlFileService {
 	 */
 	public void parseXmlFileToDbWithStaxMate(String filePath, String encoding) throws Exception;
 
+	public void parseXmlFileToDbWithStax2(String filePath, String encoding) throws Exception;
+
 }
