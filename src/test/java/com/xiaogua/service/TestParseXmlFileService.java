@@ -25,31 +25,37 @@ public class TestParseXmlFileService {
 
 	@Test
 	public void testParseXmlFileToDbWithDom4j() throws Exception {
-		//1436090
+		// 1436090
 		parseXmlFileService.parseXmlFileToDbWithDom4j(xmlPath, encoding);
 	}
 
 	@Test
 	public void testParseXmlFileToDbWithSax() throws Exception {
-		//177286
+		// 177286
 		parseXmlFileService.parseXmlFileToDbWithSax(xmlPath, encoding);
 	}
 
 	@Test
 	public void testParseXmlFileToDbWithStax() throws Exception {
-		//270813
+		// 270813
 		parseXmlFileService.parseXmlFileToDbWithStax(xmlPath, encoding);
 	}
 
 	@Test
 	public void testParseXmlFileToDbWithStaxMate() throws Exception {
-		//203191
+		// 203191
 		parseXmlFileService.parseXmlFileToDbWithStaxMate(xmlPath, encoding);
 	}
-	
+
 	@Test
 	public void testParseXmlFileToDbWithStax2() throws Exception {
-		//183156
+		// 183156
 		parseXmlFileService.parseXmlFileToDbWithStax2(xmlPath, encoding);
+	}
+
+	@Test
+	public void testParseXmlFileToDbWithJacksonXml() throws Exception {
+		//210004
+		parseXmlFileService.parseXmlFileToDbWithJacksonXml(xmlPath, encoding);
 	}
 }

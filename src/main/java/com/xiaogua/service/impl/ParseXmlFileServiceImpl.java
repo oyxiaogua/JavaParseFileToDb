@@ -5,6 +5,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import com.fasterxml.jackson.dataformat.xml.deser.XmlTokenStream;
 import com.xiaogua.dao.GenerateRandDataDao;
 import com.xiaogua.dao.MySqlManagerDao;
 import com.xiaogua.parse.Dom4j_XmlElement_Handler;
@@ -188,7 +190,11 @@ public class ParseXmlFileServiceImpl implements InterfaceParseXmlFileService {
 		String tmpSql = sqlBuffer.toString();
 		if (tmpSql.length() > 0 && !tmpSql.endsWith("values ")) {
 			log.info("process remain data");
-			sqlBuffer.deleteCharAt(sqlBuffer.length() - 1);
+			if(tmpSql.endsWith(",")){
+				sqlBuffer.deleteCharAt(sqlBuffer.length() - 1);
+			}else{
+				sqlBuffer.append(")");
+			}
 			MySqlManagerDao.insertDataToDb(sqlBuffer.toString());
 		}
 	}
@@ -245,5 +251,53 @@ public class ParseXmlFileServiceImpl implements InterfaceParseXmlFileService {
 		sqlBuffer.setLength(0);
 		log.info("method {},parse json file {},total num={}, cost time={}", "parseXmlFileToDbWithStax", countNum,
 				filePath, (System.currentTimeMillis() - start));
+	}
+
+	public void parseXmlFileToDbWithJacksonXml(String filePath, String encoding) throws Exception {
+		long start = System.currentTimeMillis();
+		StringBuffer sqlBuffer = new StringBuffer(5120);
+		sqlBuffer.append(sql);
+		long countNum = 0;
+		XMLStreamReader sr = XMLInputFactory.newInstance()
+				.createXMLStreamReader(GenerateRandDataDao.read(filePath, encoding));
+		sr.nextTag();
+		XmlTokenStream tokens = new XmlTokenStream(sr, null);
+		int tokenIndex = tokens.next();;
+		String currentElementName = null, currentElementValue = null;
+		boolean isStart = true;
+		while ((tokenIndex=tokens.getCurrentToken()) != XmlTokenStream.XML_END) {
+			if (tokenIndex == XmlTokenStream.XML_START_ELEMENT) {
+				if ("personinfo".equals(tokens.getLocalName())) {
+					if (isStart) {
+						sqlBuffer.append("(");
+						isStart=false;
+						countNum++;
+					} else {
+						countNum++;
+						sqlBuffer.append("),");
+						saveXmlDataToDb(sqlBuffer, countNum);
+						sqlBuffer.append("(");
+					}
+				}
+			} else if (tokenIndex == XmlTokenStream.XML_TEXT) {
+				currentElementName = tokens.getLocalName();
+				currentElementValue = tokens.getText();
+				//System.out.println(currentElementName + "-->" + currentElementValue);
+				if ("id".equals(currentElementName)) {
+					sqlBuffer.append(currentElementValue).append(",");
+				} else if (!"hobby".equals(currentElementName)) {
+					sqlBuffer.append("'").append(currentElementValue).append("',");
+				} else if ("hobby".equals(currentElementName)) {
+					sqlBuffer.append("'").append(currentElementValue.trim().replace("\\\"", "\"").replace("'", "\\\'"))
+							.append("'");
+				}
+			}
+			tokenIndex = tokens.next();
+		}
+		processRemainXmlData(sqlBuffer);
+		sqlBuffer.setLength(0);
+		log.info("method {},parse json file {},total num={}, cost time={}", "parseXmlFileToDbWithJacksonXml", countNum,
+				filePath, (System.currentTimeMillis() - start));
+
 	}
 }

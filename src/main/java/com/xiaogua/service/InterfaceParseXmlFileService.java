@@ -37,4 +37,6 @@ public interface InterfaceParseXmlFileService {
 
 	public void parseXmlFileToDbWithStax2(String filePath, String encoding) throws Exception;
 
+	public void parseXmlFileToDbWithJacksonXml(String filePath, String encoding) throws Exception;
+
 }

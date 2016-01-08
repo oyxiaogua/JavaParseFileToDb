@@ -16,17 +16,17 @@ public class TestGenerateFileService {
 
 	@Test
 	public void testGenerateCsvFile() {
-		generateFileService.generateCsvFile("e:/test_tmp/big_csv.csv", encoding, 2000000);
+		generateFileService.generateCsvFile("e:/test_tmp/big_csv.csv", encoding, 20);
 	}
 
 	@Test
 	public void testGenerateJsonFile() {
-		generateFileService.generateJsonFile("e:/test_tmp/big_json.json", encoding, 2000000);
+		generateFileService.generateJsonFile("e:/test_tmp/big_json.json", encoding, 20);
 	}
 
 	@Test
 	public void testGenerateXmlFile() {
-		generateFileService.generateXmlFile("e:/test_tmp/big_xml.xml", encoding, 2000000);
+		generateFileService.generateXmlFile("e:/test_tmp/big_xml.xml", encoding, 20);
 	}
 
 }
