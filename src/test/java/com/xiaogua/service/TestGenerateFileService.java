@@ -26,7 +26,7 @@ public class TestGenerateFileService {
 
 	@Test
 	public void testGenerateXmlFile() {
-		generateFileService.generateXmlFile("e:/test_tmp/big_xml.xml", encoding, 300000);
+		generateFileService.generateXmlFile("e:/test_tmp/big_xml.xml", encoding, 20);
 	}
 
 }

@@ -61,7 +61,7 @@ public class TestParseXmlFileService {
 	
 	@Test
 	public void testParseXmlFileToDbWithAxiom() throws Exception {
-		//测试30万数据后卡住不动
+		//220322
 		parseXmlFileService.parseXmlFileToDbWithAxiom(xmlPath, encoding);
 	}
 }

@@ -345,7 +345,9 @@ public class ParseXmlFileServiceImpl implements InterfaceParseXmlFileService {
 						sqlBuffer.append("'").append(tempElement.getText().trim().replace("\\\"", "\"").replace("'", "\\\'"))
 								.append("'");
 					}
+					tmpIter.remove();
 				}
+				iter.remove();
 			 }
 		}
 		processRemainXmlData(sqlBuffer);
