@@ -39,4 +39,6 @@ public interface InterfaceParseXmlFileService {
 
 	public void parseXmlFileToDbWithJacksonXml(String filePath, String encoding) throws Exception;
 
+	public void parseXmlFileToDbWithAxiom(String filePath, String encoding) throws Exception;
+
 }

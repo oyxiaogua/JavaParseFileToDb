@@ -1,5 +1,7 @@
 package com.xiaogua.service.impl;
 
+import java.util.Iterator;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLEventReader;
@@ -11,6 +13,9 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMXMLBuilderFactory;
+import org.apache.axiom.om.OMXMLParserWrapper;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.dom4j.io.SAXReader;
@@ -299,5 +304,54 @@ public class ParseXmlFileServiceImpl implements InterfaceParseXmlFileService {
 		log.info("method {},parse json file {},total num={}, cost time={}", "parseXmlFileToDbWithJacksonXml", countNum,
 				filePath, (System.currentTimeMillis() - start));
 
+	}
+
+	public void parseXmlFileToDbWithAxiom(String filePath, String encoding) throws Exception {
+		long start = System.currentTimeMillis();
+		StringBuffer sqlBuffer = new StringBuffer(5120);
+		sqlBuffer.append(sql);
+		long countNum = 0;
+		XMLStreamReader sr = XMLInputFactory.newInstance()
+				.createXMLStreamReader(GenerateRandDataDao.read(filePath, encoding));
+		OMXMLParserWrapper builder = OMXMLBuilderFactory.createStAXOMBuilder(sr);
+		OMElement root = builder.getDocumentElement();
+		Iterator<OMElement> iter = root.getChildElements();
+		OMElement personElement=null,tempElement=null;
+		Iterator<OMElement> tmpIter=null;
+		String localName=null;
+		boolean isStart = true;
+		while (iter.hasNext()) {
+			personElement = iter.next();
+			 if (personElement.getLocalName().equals("personinfo")) {
+				if (isStart) {
+					sqlBuffer.append("(");
+					isStart = false;
+					countNum++;
+				} else {
+					countNum++;
+					sqlBuffer.append("),");
+					saveXmlDataToDb(sqlBuffer, countNum);
+					sqlBuffer.append("(");
+				}
+				tmpIter = personElement.getChildElements();
+				while (tmpIter.hasNext()) {
+					tempElement = tmpIter.next();
+					localName=tempElement.getLocalName();
+					if ("id".equals(localName)) {
+						sqlBuffer.append(tempElement.getText()).append(",");
+					} else if (!"hobby".equals(localName)) {
+						sqlBuffer.append("'").append(tempElement.getText()).append("',");
+					} else if ("hobby".equals(localName)) {
+						sqlBuffer.append("'").append(tempElement.getText().trim().replace("\\\"", "\"").replace("'", "\\\'"))
+								.append("'");
+					}
+				}
+			 }
+		}
+		processRemainXmlData(sqlBuffer);
+		sqlBuffer.setLength(0);
+		log.info("method {},parse json file {},total num={}, cost time={}", "parseXmlFileToDbWithAxiom", countNum,
+				filePath, (System.currentTimeMillis() - start));
+	
 	}
 }

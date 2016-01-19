@@ -58,4 +58,10 @@ public class TestParseXmlFileService {
 		//210004
 		parseXmlFileService.parseXmlFileToDbWithJacksonXml(xmlPath, encoding);
 	}
+	
+	@Test
+	public void testParseXmlFileToDbWithAxiom() throws Exception {
+		//测试30万数据后卡住不动
+		parseXmlFileService.parseXmlFileToDbWithAxiom(xmlPath, encoding);
+	}
 }
