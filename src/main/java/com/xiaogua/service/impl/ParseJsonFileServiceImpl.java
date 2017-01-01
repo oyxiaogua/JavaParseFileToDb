@@ -1,5 +1,7 @@
 package com.xiaogua.service.impl;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import com.jsoniter.JsonIterator;
 import com.xiaogua.dao.GenerateRandDataDao;
 import com.xiaogua.dao.MySqlManagerDao;
 import com.xiaogua.service.InterfaceParseJsonFileService;
@@ -204,6 +207,57 @@ public class ParseJsonFileServiceImpl implements InterfaceParseJsonFileService {
 				countNum, (System.currentTimeMillis() - start));
 
 	}
+	
+    public void parseJsonFileToDbWithJsoniter(String filePath, String encoding,final int bufSize) throws Exception {
+    	long start = System.currentTimeMillis();
+		StringBuffer sqlBuffer = new StringBuffer(5120);
+		sqlBuffer.append(sql);
+		InputStream in=new FileInputStream(filePath);
+		long countNum = 0;
+		JsonIterator iter = JsonIterator.parse(in,bufSize);
+		iter.readObject();//root
+		while(iter.readArray()){
+			for (String field = iter.readObject(); field != null; field = iter.readObject()) {
+				switch (field) {
+				 case "personinfo":
+					    sqlBuffer.append("(");
+						 for (String field2 = iter.readObject(); field2 != null; field2 = iter.readObject()) {
+		                     switch (field2) {
+		                        case "id":
+		                    	   sqlBuffer.append(iter.readInt()).append(",'");
+		                    	   break;
+		                        case "first_name":
+		                        case "second_name":
+		                        case "birthday":
+		                        case "gender":
+		                        case "marital_status":
+		                        case "work_date":
+		                    	  sqlBuffer.append(iter.readString()).append("','");
+		                    	  break;
+		                        case "hobby":
+		                          sqlBuffer.append(iter.readString().replace("'", "\\\'")).append("'),");	
+		                          break;
+		                        default:
+		                          iter.skip();
+		                        }
+		                    }
+					  countNum++;	 
+					  if (countNum > 0 && countNum % 1000 == 0) {
+						log.info("method {},process json number {}", "parseJsonFileToDbWithJackson", countNum);
+						saveJsonDataToDb(sqlBuffer, sql);
+					  }
+					  break;
+		          default:
+		             iter.skip();
+				 }
+			 }
+		}
+		log.info("method {},process remain json number {}", "parseJsonFileToDbWithJsoniter", countNum);
+		processRemainJsonData(sqlBuffer);
+		sqlBuffer.setLength(0);
+		log.info("method {},parse json file {},total num={}, cost time={}", "parseJsonFileToDbWithJsoniter", filePath,
+				countNum, (System.currentTimeMillis() - start));
+    }
 
 	private void saveJsonDataToDb(StringBuffer sqlBuffer, final String sql) {
 		sqlBuffer.deleteCharAt(sqlBuffer.length() - 1);

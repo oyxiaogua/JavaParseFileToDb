@@ -41,5 +41,13 @@ public interface InterfaceParseJsonFileService {
 	 * @param encoding
 	 */
 	public void parseJsonFileToDbWithJackson(String filePath, String encoding) throws Exception;
+	
+	/**
+	 * 利用jsurfer-core解析json文件
+	 * @param filePath
+	 * @param encoding
+	 * @throws Exception
+	 */
+	public void parseJsonFileToDbWithJsoniter(String filePath, String encoding,final int bufSize) throws Exception;
 
 }

@@ -13,9 +13,11 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.OMXMLParserWrapper;
+import org.apache.axiom.om.impl.llom.factory.OMXMLBuilderFactory;
+import org.apache.axiom.soap.SOAPFactory;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.dom4j.io.SAXReader;
@@ -311,9 +313,10 @@ public class ParseXmlFileServiceImpl implements InterfaceParseXmlFileService {
 		StringBuffer sqlBuffer = new StringBuffer(5120);
 		sqlBuffer.append(sql);
 		long countNum = 0;
+		SOAPFactory soapFactory = OMAbstractFactory.getSOAP11Factory();
 		XMLStreamReader sr = XMLInputFactory.newInstance()
 				.createXMLStreamReader(GenerateRandDataDao.read(filePath, encoding));
-		OMXMLParserWrapper builder = OMXMLBuilderFactory.createStAXOMBuilder(sr);
+		OMXMLParserWrapper builder = OMXMLBuilderFactory.createStAXOMBuilder(soapFactory,sr);
 		OMElement root = builder.getDocumentElement();
 		Iterator<OMElement> iter = root.getChildElements();
 		OMElement personElement=null,tempElement=null;

@@ -40,13 +40,20 @@ public class TestParseJsonFileService {
 
 	@Test
 	public void testParseJsonFileToDbWithGson() throws Exception {
-		//191480
+		//31161
 		parseJsonFileService.parseJsonFileToDbWithGson(jsonPath, encoding);
 	}
 
 	@Test
 	public void testParseJsonFileToDbWithJackson() throws Exception {
-		//199813
+		//29610
 		parseJsonFileService.parseJsonFileToDbWithJackson(jsonPath, encoding);
+	}
+	
+	@Test
+	public void testParseJsonFileToDbWithJsoniter() throws Exception {
+		//30259
+		final int bufSize=10240;
+		parseJsonFileService.parseJsonFileToDbWithJsoniter(jsonPath, encoding,bufSize);
 	}
 }

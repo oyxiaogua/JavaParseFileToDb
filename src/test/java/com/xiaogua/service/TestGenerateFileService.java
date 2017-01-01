@@ -16,7 +16,7 @@ public class TestGenerateFileService {
 
 	@Test
 	public void testGenerateCsvFile() {
-		generateFileService.generateCsvFile("e:/test_tmp/big_csv.csv", encoding, 20);
+		generateFileService.generateCsvFile("e:/test_tmp/big_csv.csv", encoding, 200);
 	}
 
 	@Test
